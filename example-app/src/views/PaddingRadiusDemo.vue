@@ -100,7 +100,8 @@
             Small Button
           </button>
           <p class="element-description">
-            Uses global padding ({{ globalPadding }}px) and radius ({{ globalRadius }}px)
+            Uses global padding ({{ globalPadding }}px) and radius ({{ globalRadius }}px)<br>
+            <small>Popover offset: {{ 10 + globalPadding }}px (10px base + {{ globalPadding }}px padding)</small>
           </p>
         </div>
 
@@ -111,7 +112,8 @@
             Medium Card
           </div>
           <p class="element-description">
-            Custom padding: 20px, Global radius: {{ globalRadius }}px
+            Custom padding: 20px, Global radius: {{ globalRadius }}px<br>
+            <small>Popover offset: 30px (10px base + 20px padding)</small>
           </p>
         </div>
 
@@ -122,7 +124,8 @@
             Large Panel
           </div>
           <p class="element-description">
-            Global padding: {{ globalPadding }}px, Custom radius: 25px
+            Global padding: {{ globalPadding }}px, Custom radius: 25px<br>
+            <small>Popover offset: {{ 10 + globalPadding }}px (10px base + {{ globalPadding }}px padding)</small>
           </p>
         </div>
 
@@ -133,7 +136,8 @@
             Custom Element
           </div>
           <p class="element-description">
-            Custom padding: 30px, Custom radius: 15px
+            Custom padding: 30px, Custom radius: 15px<br>
+            <small>Popover offset: 40px (10px base + 30px padding)</small>
           </p>
         </div>
       </div>
@@ -261,8 +265,9 @@ const tourSteps: CoachMarkStep[] = [
         <ul>
           <li>Padding: ${globalPadding.value}px (global)</li>
           <li>Radius: ${globalRadius.value}px (global)</li>
+          <li>Popover offset: ${10 + globalPadding.value}px (auto-adjusted)</li>
         </ul>
-        <p>Try adjusting the global controls to see the effect!</p>
+        <p>Notice how the popover automatically adjusts its distance based on the padding!</p>
       `,
       side: 'bottom',
       showProgress: true
@@ -278,8 +283,9 @@ const tourSteps: CoachMarkStep[] = [
         <ul>
           <li>Padding: 20px (custom override)</li>
           <li>Radius: ${globalRadius.value}px (global default)</li>
+          <li>Popover offset: 30px (auto-adjusted for padding)</li>
         </ul>
-        <p>Notice the larger padding around this element!</p>
+        <p>The popover automatically moves further away to account for the larger padding!</p>
       `,
       side: 'top',
       showProgress: true,
@@ -296,8 +302,9 @@ const tourSteps: CoachMarkStep[] = [
         <ul>
           <li>Padding: ${globalPadding.value}px (global default)</li>
           <li>Radius: 25px (custom override)</li>
+          <li>Popover offset: ${10 + globalPadding.value}px (matches global padding)</li>
         </ul>
-        <p>See the more rounded corners on the highlight!</p>
+        <p>Radius changes the highlight shape, while padding affects popover distance!</p>
       `,
       side: 'left',
       showProgress: true,
@@ -314,8 +321,9 @@ const tourSteps: CoachMarkStep[] = [
         <ul>
           <li>Padding: 30px (custom override)</li>
           <li>Radius: 15px (custom override)</li>
+          <li>Popover offset: 40px (maximum distance for large padding)</li>
         </ul>
-        <p>Complete control over highlight appearance!</p>
+        <p>Perfect spacing maintained regardless of padding size!</p>
       `,
       side: 'right',
       showProgress: true,

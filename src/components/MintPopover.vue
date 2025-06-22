@@ -104,7 +104,8 @@ import {
   type Ref,
   type ComputedRef
 } from 'vue'
-import { calculatePopoverPosition } from '../utils'
+import { calculatePopoverPosition, getEffectivePadding } from '../utils'
+import { useCoachMarkConfig } from '../composables/useCoachMarkConfig'
 import type {
   Side,
   AllowedButtons,
@@ -128,6 +129,9 @@ const props = withDefaults(defineProps<MintPopoverProps>(), {
 })
 
 const emit = defineEmits<MintPopoverEmits>()
+
+// Configuration access for padding
+const { getConfig } = useCoachMarkConfig()
 
 // Template refs
 const popoverRef: Ref<HTMLElement | undefined> = ref<HTMLElement>()
@@ -195,11 +199,23 @@ const updatePosition = async (): Promise<void> => {
   const targetRect: DOMRect = props.targetElement.getBoundingClientRect()
   const popoverRect: DOMRect = popoverRef.value.getBoundingClientRect()
 
+  // Calculate effective offset including padding
+  const config = getConfig()
+  const globalPadding = config.padding || 10
+  const effectivePadding = getEffectivePadding(
+    props.step?.popover?.padding,
+    globalPadding,
+    10
+  )
+
+  // Add padding to the base offset for proper spacing
+  const totalOffset = props.offset + effectivePadding
+
   const position = calculatePopoverPosition(
     targetRect,
     { width: popoverRect.width, height: popoverRect.height },
     props.side,
-    props.offset
+    totalOffset
   )
 
   popoverStyle.value = {

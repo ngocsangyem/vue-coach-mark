@@ -8,7 +8,7 @@
       :target="popoverState.targetElement || undefined"
       :anchor="quasarAnchor"
       :self="quasarSelf"
-      :offset="[10, 10]"
+      :offset="quasarOffset"
       :delay="1000"
       :hide-delay="50"
       no-parent-event
@@ -121,7 +121,7 @@ import { useAsyncTour } from '../composables/useAsyncTour'
 import { useScrollBlocking } from '../composables/useScrollBlocking'
 import { useTooltipManagement } from '../composables/useTooltipManagement'
 import { useQuasarWatchers } from '../composables/useQuasarWatchers'
-import { getElement } from '../utils'
+import { getElement, getEffectivePadding } from '../utils'
 import type {
   CoachMarkConfig,
   CoachMarkStep,
@@ -224,6 +224,25 @@ const quasarAnchor: ComputedRef<QuasarAnchor> = computed(() => {
 const quasarSelf: ComputedRef<QuasarAnchor> = computed(() => {
   const side = currentStep.value?.popover?.side || 'bottom'
   return quasarPositionMap[side]?.self || quasarPositionMap.bottom.self
+})
+
+// Quasar offset calculation including padding
+const quasarOffset: ComputedRef<[number, number]> = computed(() => {
+  const baseOffset = 10
+
+  // Get effective padding value
+  const config = getConfig()
+  const globalPadding = config.padding || 10
+  const effectivePadding = getEffectivePadding(
+    currentStep.value?.popover?.padding,
+    globalPadding,
+    10
+  )
+
+  // Add padding to the base offset for proper spacing
+  const totalOffset = baseOffset + effectivePadding
+
+  return [totalOffset, totalOffset]
 })
 
 // Button configuration
