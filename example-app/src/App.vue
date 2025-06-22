@@ -71,6 +71,13 @@ const navigationCategories: NavigationCategory[] = [
         component: 'MintPopover',
         description: 'Element highlighting customization'
       },
+      {
+        name: 'Async API Integration',
+        path: '/async-api',
+        icon: '🚀',
+        component: 'QuasarCoachMark',
+        description: 'Real API calls with async functionality'
+      },
       { 
         name: 'Programmatic', 
         path: '/programmatic', 

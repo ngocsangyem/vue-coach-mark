@@ -375,16 +375,6 @@ const asyncTourSteps: CoachMarkStep[] = [
 
       console.log('✅ Cleanup complete')
     },
-    onNextClick: (element, step, driver) => {
-      console.log('❌ Blocking default next behavior for testing purposes')
-
-      dynamicElementVisible.value = false;
-
-      console.log('✅ Next step triggered manually')
-
-      // Manually proceed to next step
-      driver.moveNext()
-    }
   },
   {
     element: '#test-element-3',
@@ -403,8 +393,8 @@ const testConfig: CoachMarkConfig = {
   animate: true,
   allowClose: true,
   showProgress: true,
-  stagePadding: 10,
-  stageRadius: 8,
+  padding: 10,
+  radius: 8,
   overlayOpacity: 0.7,
   smoothScroll: true
 }

@@ -73,6 +73,14 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Padding & Radius Demo'
     }
+  },
+  {
+    path: '/async-api',
+    name: 'AsyncApi',
+    component: () => import('../views/AsyncApiDemo.vue'),
+    meta: {
+      title: 'Async API Integration Demo'
+    }
   }
 ]
 
