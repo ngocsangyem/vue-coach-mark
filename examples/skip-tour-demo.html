@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skip Tour Demo - MintCoachMark</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .demo-section {
+      margin: 40px 0;
+      padding: 20px;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+    }
+    
+    .demo-button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+    }
+    
+    .demo-button:hover {
+      background: #0056b3;
+    }
+    
+    .demo-input {
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      margin: 10px;
+      width: 200px;
+    }
+    
+    .demo-card {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    
+    .controls button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .controls button:hover {
+      background: #218838;
+    }
+    
+    .event-log {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 10px;
+      margin: 10px 0;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Skip Tour Demo - MintCoachMark</h1>
+    <p>This demo showcases the new Skip Tour feature. The skip button will only appear on the first step of the tour.</p>
+    
+    <div class="demo-section">
+      <h2 id="step1">Step 1: Welcome Section</h2>
+      <p>This is the first step where you'll see the Skip Tour button. Click it to skip the entire tour!</p>
+      <button class="demo-button">Sample Button 1</button>
+      <input class="demo-input" placeholder="Sample Input 1" />
+    </div>
+    
+    <div class="demo-section">
+      <h2 id="step2">Step 2: Features Section</h2>
+      <p>This is the second step. The skip button should not appear here.</p>
+      <button class="demo-button">Sample Button 2</button>
+      <input class="demo-input" placeholder="Sample Input 2" />
+    </div>
+    
+    <div class="demo-section">
+      <h2 id="step3">Step 3: Configuration Section</h2>
+      <p>This is the third step. Still no skip button here.</p>
+      <div class="demo-card">
+        <h3>Configuration Options</h3>
+        <p>Various configuration options would go here.</p>
+      </div>
+    </div>
+    
+    <div class="demo-section">
+      <h2 id="step4">Step 4: Final Section</h2>
+      <p>This is the final step of the tour.</p>
+      <button class="demo-button">Finish</button>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <h3>Tour Controls</h3>
+    <button onclick="startTour()">Start Tour</button>
+    <button onclick="startTourWithoutSkip()">Start Tour (No Skip)</button>
+    <button onclick="clearLog()">Clear Log</button>
+    
+    <h4>Event Log:</h4>
+    <div id="eventLog" class="event-log"></div>
+  </div>
+
+  <script>
+    // Event logging
+    function logEvent(event, data = {}) {
+      const log = document.getElementById('eventLog');
+      const timestamp = new Date().toLocaleTimeString();
+      const entry = `[${timestamp}] ${event}: ${JSON.stringify(data)}`;
+      log.innerHTML += entry + '\n';
+      log.scrollTop = log.scrollHeight;
+      console.log(entry);
+    }
+    
+    function clearLog() {
+      document.getElementById('eventLog').innerHTML = '';
+    }
+    
+    // Tour configuration with skip enabled
+    const tourStepsWithSkip = [
+      {
+        element: '#step1',
+        popover: {
+          title: 'Welcome to the Tour!',
+          description: 'This is the first step. Notice the Skip Tour button that allows you to skip the entire tour.',
+          side: 'bottom',
+          showButtons: ['skip', 'next', 'close'],
+          showProgress: true
+        }
+      },
+      {
+        element: '#step2',
+        popover: {
+          title: 'Features Overview',
+          description: 'This is the second step. The skip button should not appear here since it\'s only shown on the first step.',
+          side: 'bottom',
+          showButtons: ['previous', 'next', 'close'],
+          showProgress: true
+        }
+      },
+      {
+        element: '#step3',
+        popover: {
+          title: 'Configuration',
+          description: 'Learn about configuration options in this step.',
+          side: 'top',
+          showButtons: ['previous', 'next', 'close'],
+          showProgress: true
+        }
+      },
+      {
+        element: '#step4',
+        popover: {
+          title: 'Tour Complete!',
+          description: 'This is the final step of the tour. Well done!',
+          side: 'top',
+          showButtons: ['previous', 'close'],
+          showProgress: true,
+          nextBtnText: 'Finish'
+        }
+      }
+    ];
+    
+    // Tour configuration without skip
+    const tourStepsWithoutSkip = tourStepsWithSkip.map(step => ({
+      ...step,
+      popover: {
+        ...step.popover,
+        showButtons: step.popover.showButtons.filter(btn => btn !== 'skip')
+      }
+    }));
+    
+    // Tour configuration
+    const tourConfig = {
+      allowSkip: true,
+      skipBtnText: 'Skip Tour',
+      animate: true,
+      overlayColor: '#000',
+      overlayOpacity: 0.7,
+      onSkipClick: (element, step, context) => {
+        logEvent('onSkipClick', {
+          stepTitle: step.popover?.title,
+          elementId: element?.id
+        });
+      }
+    };
+    
+    function startTour() {
+      logEvent('startTour', { allowSkip: true });
+      
+      // This would be the actual implementation using MintCoachMark
+      // For demo purposes, we'll simulate the behavior
+      simulateTour(tourStepsWithSkip, true);
+    }
+    
+    function startTourWithoutSkip() {
+      logEvent('startTour', { allowSkip: false });
+      
+      // This would be the actual implementation using MintCoachMark
+      // For demo purposes, we'll simulate the behavior
+      simulateTour(tourStepsWithoutSkip, false);
+    }
+    
+    function simulateTour(steps, allowSkip) {
+      let currentStep = 0;
+      
+      function showStep(stepIndex) {
+        if (stepIndex >= steps.length) {
+          logEvent('tour-complete');
+          return;
+        }
+        
+        const step = steps[stepIndex];
+        const element = document.querySelector(step.element);
+        
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Simulate popover display
+          logEvent('step-change', {
+            stepIndex,
+            title: step.popover.title,
+            hasSkipButton: allowSkip && stepIndex === 0 && step.popover.showButtons.includes('skip')
+          });
+          
+          // Highlight element
+          element.style.outline = '3px solid #007bff';
+          element.style.outlineOffset = '2px';
+          
+          // Remove highlight after delay
+          setTimeout(() => {
+            element.style.outline = '';
+            element.style.outlineOffset = '';
+          }, 2000);
+        }
+        
+        currentStep = stepIndex;
+      }
+      
+      // Start tour
+      showStep(0);
+      
+      // Simulate skip functionality
+      if (allowSkip) {
+        setTimeout(() => {
+          const shouldSkip = confirm('Demo: Would you like to skip the tour? (This simulates clicking the Skip button)');
+          if (shouldSkip) {
+            logEvent('tour-skipped', { 
+              stepIndex: currentStep,
+              stepTitle: steps[currentStep].popover.title 
+            });
+            // Clear any highlights
+            document.querySelectorAll('[style*="outline"]').forEach(el => {
+              el.style.outline = '';
+              el.style.outlineOffset = '';
+            });
+          } else {
+            // Continue with next step
+            setTimeout(() => showStep(1), 1000);
+          }
+        }, 3000);
+      } else {
+        // Continue with next step
+        setTimeout(() => showStep(1), 3000);
+      }
+    }
+    
+    // Initialize
+    logEvent('demo-initialized');
+  </script>
+</body>
+</html>

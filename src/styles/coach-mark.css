@@ -1,0 +1,600 @@
+/**
+ * MintCoachMark CSS Styles
+ * Based on driver.js styles but adapted for Vue components
+ */
+
+/* CSS Custom Properties for theming */
+:root {
+  --mint-coach-mark-overlay-color: #000;
+  --mint-coach-mark-overlay-opacity: 0.7;
+  /* Z-index hierarchy: overlay (10000) < default popover (10001) < custom popover (10002) */
+  --mint-coach-mark-overlay-z-index: 10000;
+  --mint-coach-mark-popover-bg: #fff;
+  --mint-coach-mark-popover-color: #2d2d2d;
+  --mint-coach-mark-popover-border-radius: 5px;
+  --mint-coach-mark-popover-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+  --mint-coach-mark-popover-padding: 15px;
+  --mint-coach-mark-popover-min-width: 250px;
+  --mint-coach-mark-popover-max-width: 300px;
+  --mint-coach-mark-popover-z-index: 10001;
+  --mint-coach-mark-custom-popover-z-index: 10002;
+  --mint-coach-mark-font-family: "Helvetica Neue", Inter, ui-sans-serif, "Apple Color Emoji", Helvetica, Arial, sans-serif;
+  --mint-coach-mark-title-font-size: 19px;
+  --mint-coach-mark-description-font-size: 14px;
+  --mint-coach-mark-button-font-size: 12px;
+  --mint-coach-mark-progress-font-size: 13px;
+  --mint-coach-mark-button-bg: #ffffff;
+  --mint-coach-mark-button-color: #2d2d2d;
+  --mint-coach-mark-button-border: #ccc;
+  --mint-coach-mark-button-hover-bg: #f7f7f7;
+  --mint-coach-mark-close-color: #d2d2d2;
+  --mint-coach-mark-close-hover-color: #2d2d2d;
+  --mint-coach-mark-progress-color: #727272;
+}
+
+/* Global styles when coach mark is active */
+.mint-coach-mark-active .mint-coach-mark-overlay {
+  pointer-events: none;
+}
+
+.mint-coach-mark-active * {
+  pointer-events: none;
+}
+
+.mint-coach-mark-active .mint-coach-mark-active-element,
+.mint-coach-mark-active .mint-coach-mark-active-element *,
+.mint-coach-mark-popover,
+.mint-coach-mark-popover *,
+.mint-coach-mark-custom-popover,
+.mint-coach-mark-custom-popover *,
+.q-tooltip,
+.q-tooltip * {
+  pointer-events: auto;
+}
+
+/* Animations */
+@keyframes mint-coach-mark-fade-in {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mint-coach-mark-fade #mint-coach-mark-overlay {
+  animation: mint-coach-mark-fade-in 200ms ease-in-out;
+}
+
+.mint-coach-mark-fade .mint-coach-mark-popover {
+  animation: mint-coach-mark-fade-in 200ms;
+}
+
+/* Disable interaction styles */
+.mint-coach-mark-no-interaction,
+.mint-coach-mark-no-interaction * {
+  pointer-events: none !important;
+}
+
+/* Disable scrolling of parent element if it has an active element */
+:not(body):has(> .mint-coach-mark-active-element) {
+  overflow: hidden !important;
+}
+
+/* Popover Styles */
+.mint-coach-mark-popover {
+  all: unset;
+  box-sizing: border-box;
+  color: var(--mint-coach-mark-popover-color);
+  margin: 0;
+  padding: var(--mint-coach-mark-popover-padding);
+  border-radius: var(--mint-coach-mark-popover-border-radius);
+  min-width: var(--mint-coach-mark-popover-min-width);
+  max-width: var(--mint-coach-mark-popover-max-width);
+  box-shadow: var(--mint-coach-mark-popover-shadow);
+  z-index: var(--mint-coach-mark-popover-z-index);
+  position: fixed;
+  background-color: var(--mint-coach-mark-popover-bg);
+  font-family: var(--mint-coach-mark-font-family);
+}
+
+.mint-coach-mark-popover * {
+  font-family: var(--mint-coach-mark-font-family);
+}
+
+/* Popover Header */
+.mint-coach-mark-popover__header {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.mint-coach-mark-popover__title {
+  font-size: var(--mint-coach-mark-title-font-size);
+  font-weight: 700;
+  display: block;
+  position: relative;
+  line-height: 1.5;
+  margin: 0;
+  padding-right: 40px; /* Space for close button */
+}
+
+.mint-coach-mark-popover__close {
+  all: unset;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 32px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--mint-coach-mark-close-color);
+  z-index: 1;
+  text-align: center;
+  transition: color 200ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mint-coach-mark-popover__close:hover,
+.mint-coach-mark-popover__close:focus {
+  color: var(--mint-coach-mark-close-hover-color);
+}
+
+.mint-coach-mark-popover__close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Popover Content */
+.mint-coach-mark-popover__content {
+  margin-bottom: 0;
+}
+
+.mint-coach-mark-popover__description {
+  margin: 0;
+  font-size: var(--mint-coach-mark-description-font-size);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Popover Footer */
+.mint-coach-mark-popover__footer {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mint-coach-mark-popover__progress {
+  font-size: var(--mint-coach-mark-progress-font-size);
+  font-weight: 400;
+  color: var(--mint-coach-mark-progress-color);
+}
+
+.mint-coach-mark-popover__buttons {
+  display: flex;
+  gap: 4px;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.mint-coach-mark-popover__btn {
+  all: unset;
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 3px 7px;
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #fff;
+  background-color: var(--mint-coach-mark-button-bg);
+  color: var(--mint-coach-mark-button-color);
+  font-size: var(--mint-coach-mark-button-font-size);
+  cursor: pointer;
+  outline: 0;
+  line-height: 1.3;
+  border: 1px solid var(--mint-coach-mark-button-border);
+  border-radius: 3px;
+  transition: background-color 200ms;
+}
+
+.mint-coach-mark-popover__btn:hover,
+.mint-coach-mark-popover__btn:focus {
+  background-color: var(--mint-coach-mark-button-hover-bg);
+}
+
+.mint-coach-mark-popover__btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Popover Arrow */
+.mint-coach-mark-popover__arrow {
+  content: "";
+  position: absolute;
+  border: 5px solid var(--mint-coach-mark-popover-bg);
+}
+
+.mint-coach-mark-popover__arrow--over {
+  display: none;
+}
+
+/* Arrow positioning for different sides */
+.mint-coach-mark-popover__arrow--left {
+  left: 100%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-top-color: transparent;
+  top: 50%;
+  margin-top: -5px;
+}
+
+.mint-coach-mark-popover__arrow--right {
+  right: 100%;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-top-color: transparent;
+  top: 50%;
+  margin-top: -5px;
+}
+
+.mint-coach-mark-popover__arrow--top {
+  top: 100%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  left: 50%;
+  margin-left: -5px;
+}
+
+.mint-coach-mark-popover__arrow--bottom {
+  bottom: 100%;
+  border-left-color: transparent;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  left: 50%;
+  margin-left: -5px;
+}
+
+/* Popover positioning classes */
+.mint-coach-mark-popover--top {
+  /* Additional styles for top positioning if needed */
+}
+
+.mint-coach-mark-popover--bottom {
+  /* Additional styles for bottom positioning if needed */
+}
+
+.mint-coach-mark-popover--left {
+  /* Additional styles for left positioning if needed */
+}
+
+.mint-coach-mark-popover--right {
+  /* Additional styles for right positioning if needed */
+}
+
+.mint-coach-mark-popover--over {
+  /* Additional styles for over positioning if needed */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mint-coach-mark-popover {
+    min-width: 200px;
+    max-width: calc(100vw - 20px);
+    padding: 12px;
+  }
+
+  .mint-coach-mark-popover__title {
+    font-size: 16px;
+  }
+
+  .mint-coach-mark-popover__description {
+    font-size: 13px;
+  }
+}
+
+/* Quasar QTooltip Integration Styles */
+.mint-coach-mark-quasar-tooltip {
+  background: var(--mint-coach-mark-popover-bg, #ffffff);
+  color: var(--mint-coach-mark-popover-color, #2d2d2d);
+  border-radius: var(--mint-coach-mark-popover-border-radius, 8px);
+  box-shadow: var(--mint-coach-mark-popover-shadow, 0 4px 20px rgba(0, 0, 0, 0.15));
+  max-width: 400px;
+  min-width: 200px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  z-index: var(--mint-coach-mark-custom-popover-z-index, 10002) !important;
+}
+
+/* Ensure all custom popovers have proper z-index */
+.mint-coach-mark-custom-popover {
+  z-index: var(--mint-coach-mark-custom-popover-z-index, 10002) !important;
+}
+
+/* Specific Quasar QTooltip z-index override */
+.q-tooltip,
+.mint-coach-mark-quasar-tooltip {
+  z-index: var(--mint-coach-mark-custom-popover-z-index, 10002) !important;
+}
+
+/* QuasarCoachMark specific styles */
+.mint-coach-mark-quasar-wrapper {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 320px;
+  min-width: 280px;
+}
+
+.mint-coach-mark-quasar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.mint-coach-mark-quasar-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.mint-coach-mark-quasar-progress {
+  margin-bottom: 1rem;
+}
+
+.mint-coach-mark-quasar-progress-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.mint-coach-mark-quasar-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mint-coach-mark-quasar-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.mint-coach-mark-quasar-footer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.mint-coach-mark-quasar-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.mint-coach-mark-quasar-btn:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.mint-coach-mark-quasar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mint-coach-mark-quasar-btn--prev {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.mint-coach-mark-quasar-btn--prev:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.mint-coach-mark-quasar-btn--next {
+  background: #3b82f6;
+  color: white;
+}
+
+.mint-coach-mark-quasar-btn--next:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.mint-coach-mark-quasar-btn--close {
+  background: transparent;
+  color: #9ca3af;
+  padding: 0.25rem 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-left: auto;
+}
+
+.mint-coach-mark-quasar-btn--close:hover:not(:disabled) {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Utility classes for custom popover implementations */
+.mint-coach-mark-custom-popover-wrapper {
+  z-index: var(--mint-coach-mark-custom-popover-z-index, 10002) !important;
+  pointer-events: auto !important;
+}
+
+/* Common third-party tooltip/popover libraries */
+.tippy-box,
+.floating-ui-tooltip,
+.ant-tooltip,
+.el-tooltip,
+.v-tooltip {
+  z-index: var(--mint-coach-mark-custom-popover-z-index, 10002) !important;
+}
+
+/* Ensure custom popover content is interactive */
+.mint-coach-mark-custom-popover *,
+.mint-coach-mark-custom-popover-wrapper *,
+.q-tooltip *,
+.tippy-box *,
+.floating-ui-tooltip *,
+.ant-tooltip *,
+.el-tooltip *,
+.v-tooltip * {
+  pointer-events: auto !important;
+}
+
+.mint-coach-mark-quasar-wrapper {
+  padding: 0;
+}
+
+.mint-coach-mark-quasar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: var(--mint-coach-mark-popover-title-color, #1a1a1a);
+  line-height: 1.3;
+  padding: 1rem 1rem 0 1rem;
+}
+
+.mint-coach-mark-quasar-description {
+  color: var(--mint-coach-mark-popover-description-color, #4a4a4a);
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+  padding: 0 1rem;
+}
+
+.mint-coach-mark-quasar-progress {
+  padding: 0 1rem 1rem 1rem;
+  border-bottom: 1px solid var(--mint-coach-mark-popover-border-color, #e5e5e5);
+  margin-bottom: 1rem;
+}
+
+.mint-coach-mark-quasar-progress-text {
+  font-size: 0.75rem;
+  color: var(--mint-coach-mark-popover-progress-color, #666);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.mint-coach-mark-quasar-progress-bar {
+  height: 4px;
+  background: var(--mint-coach-mark-popover-progress-bg, #f0f0f0);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mint-coach-mark-quasar-progress-fill {
+  height: 100%;
+  background: var(--mint-coach-mark-popover-progress-fill, #667eea);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.mint-coach-mark-quasar-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--mint-coach-mark-popover-footer-bg, #f8f9fa);
+  border-top: 1px solid var(--mint-coach-mark-popover-border-color, #e5e5e5);
+  border-radius: 0 0 8px 8px;
+}
+
+.mint-coach-mark-quasar-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--mint-coach-mark-button-bg, #667eea);
+  color: var(--mint-coach-mark-button-color, #ffffff);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.mint-coach-mark-quasar-btn:hover {
+  background: var(--mint-coach-mark-button-hover-bg, #5a67d8);
+  transform: translateY(-1px);
+}
+
+.mint-coach-mark-quasar-btn:active {
+  transform: translateY(0);
+}
+
+.mint-coach-mark-quasar-btn:focus {
+  outline: 2px solid var(--mint-coach-mark-button-focus-color, #667eea);
+  outline-offset: 2px;
+}
+
+.mint-coach-mark-quasar-btn--prev {
+  background: var(--mint-coach-mark-button-secondary-bg, #6c757d);
+  color: var(--mint-coach-mark-button-secondary-color, #ffffff);
+}
+
+.mint-coach-mark-quasar-btn--prev:hover {
+  background: var(--mint-coach-mark-button-secondary-hover-bg, #5a6268);
+}
+
+.mint-coach-mark-quasar-btn--close {
+  background: transparent;
+  color: var(--mint-coach-mark-button-close-color, #6c757d);
+  border: 1px solid var(--mint-coach-mark-button-close-border, #dee2e6);
+  min-width: 32px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.mint-coach-mark-quasar-btn--close:hover {
+  background: var(--mint-coach-mark-button-close-hover-bg, #f8f9fa);
+  color: var(--mint-coach-mark-button-close-hover-color, #495057);
+}
+
+/* Quasar responsive design */
+@media (max-width: 768px) {
+  .mint-coach-mark-quasar-tooltip {
+    max-width: 90vw;
+    margin: 0 1rem;
+  }
+
+  .mint-coach-mark-quasar-title {
+    font-size: 1rem;
+  }
+
+  .mint-coach-mark-quasar-description {
+    font-size: 0.875rem;
+  }
+
+  .mint-coach-mark-quasar-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mint-coach-mark-quasar-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
