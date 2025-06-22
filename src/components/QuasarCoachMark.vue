@@ -33,19 +33,13 @@
         </div>
         
         <!-- Progress -->
-        <div 
-          v-if="currentStep?.popover?.showProgress" 
+        <div
+          v-if="currentStep?.popover?.showProgress"
           class="mint-coach-mark-quasar-progress"
         >
           <slot name="progress" :step="currentStep" :index="currentStepIndex" :total="totalSteps">
             <div class="mint-coach-mark-quasar-progress-text">
               {{ progressText }}
-            </div>
-            <div class="mint-coach-mark-quasar-progress-bar">
-              <div 
-                class="mint-coach-mark-quasar-progress-fill" 
-                :style="{ width: `${progressPercentage}%` }"
-              ></div>
             </div>
           </slot>
         </div>
@@ -260,17 +254,9 @@ const skipBtnText: ComputedRef<string> = computed(() =>
   'Skip'
 )
 
-// Progress calculation
+// Simplified progress calculation - just "current / total" format
 const progressText: ComputedRef<string> = computed(() => {
-  const text = currentStep.value?.popover?.progressText || 'Step {{current}} of {{total}}'
-  return text
-    .replace('{{current}}', String((currentStepIndex.value || 0) + 1))
-    .replace('{{total}}', String(totalSteps.value))
-})
-
-const progressPercentage: ComputedRef<number> = computed(() => {
-  if (totalSteps.value === 0) return 0
-  return ((currentStepIndex.value || 0) + 1) / totalSteps.value * 100
+  return `${(currentStepIndex.value || 0) + 1} / ${totalSteps.value}`
 })
 
 // Enhanced visibility logic to prevent content flashing during transitions

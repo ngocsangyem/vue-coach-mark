@@ -244,10 +244,8 @@ export function useCoachMark(initialConfig: CoachMarkConfig = {}) {
       typeof currentStep.popover?.showProgress !== 'undefined'
         ? currentStep.popover?.showProgress
         : getConfig('showProgress')
-    const progressText = currentStep.popover?.progressText || getConfig('progressText') || '{{current}} of {{total}}'
-    const progressTextReplaced = progressText
-      .replace('{{current}}', `${stepIndex + 1}`)
-      .replace('{{total}}', `${steps.length}`)
+    // Simplified progress text: just "current / total" format
+    const progressText = `${stepIndex + 1} / ${steps.length}`
 
     const configuredButtons = currentStep.popover?.showButtons || getConfig('showButtons')
     const calculatedButtons: AllowedButtons[] = [
@@ -266,7 +264,7 @@ export function useCoachMark(initialConfig: CoachMarkConfig = {}) {
         nextBtnText: !hasNextStep ? doneBtnText : currentStep.popover.nextBtnText,
         disableButtons: [...(!hasPreviousStep ? ['previous' as AllowedButtons] : [])],
         showProgress: showProgress,
-        progressText: progressTextReplaced,
+        progressText: progressText,
         ...currentStep.popover
       } : undefined
     }
@@ -387,7 +385,7 @@ export function useCoachMark(initialConfig: CoachMarkConfig = {}) {
           ? {
               showButtons: [],
               showProgress: false,
-              progressText: '',
+              progressText: '1 / 1',
               ...step.popover!
             }
           : undefined
