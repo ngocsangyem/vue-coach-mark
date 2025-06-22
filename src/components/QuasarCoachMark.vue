@@ -180,17 +180,7 @@ const {
   isAsyncOperationInProgress,
   handleAsyncNavigation,
   handleStepDeselection
-} = useAsyncTour({
-  onAsyncOperationStart: () => {
-    console.log('🔄 Async operation started')
-  },
-  onAsyncOperationComplete: () => {
-    console.log('✅ Async operation completed')
-  },
-  onAsyncOperationError: (error: Error) => {
-    console.error('❌ Async operation failed:', error)
-  }
-})
+} = useAsyncTour()
 
 // Initialize scroll blocking functionality
 const { blockScrolling, unblockScrolling } = useScrollBlocking();
@@ -267,7 +257,7 @@ const shouldShowSkipButton: ComputedRef<boolean> = computed(() => {
 const skipBtnText: ComputedRef<string> = computed(() =>
   currentStep.value?.popover?.skipBtnText ||
   mergedConfig.value.skipBtnText ||
-  'Skip Tour'
+  'Skip'
 )
 
 // Progress calculation
@@ -323,13 +313,10 @@ const {
  */
 const ensureTooltipHidden = async (): Promise<void> => {
   if (tooltipVisible.value) {
-    console.log('🔒 Hiding tooltip and waiting for animation to complete')
     tooltipVisible.value = false
 
     // Wait for Vue reactivity to process and QTooltip's hide delay
     await nextTick()
-
-    console.log('✅ Tooltip hide animation complete')
   }
 }
 
@@ -337,8 +324,6 @@ const ensureTooltipHidden = async (): Promise<void> => {
  * Ensure all step processing is complete before showing tooltip
  */
 const ensureStepProcessingComplete = async (): Promise<void> => {
-  console.log('⏳ Waiting for step processing to complete')
-
   // Wait for Vue reactivity to process the step change
   await nextTick()
 
@@ -347,23 +332,14 @@ const ensureStepProcessingComplete = async (): Promise<void> => {
   const maxRetries = 3
 
   while (retryCount < maxRetries && !currentStep.value && popoverState.value.step) {
-    console.log(`🔄 CurrentStep not ready, retry ${retryCount + 1}/${maxRetries}`)
     await nextTick()
     retryCount++
   }
 
   // Additional wait for async operations
   if (isAsyncOperationInProgress.value) {
-    console.log('⏳ Async operation in progress, waiting for stability...')
     await nextTick()
   }
-
-  console.log('✅ Step processing complete', {
-    hasCurrentStep: !!currentStep.value,
-    hasPopoverStep: !!popoverState.value.step,
-    retryCount,
-    isAsyncOperation: isAsyncOperationInProgress.value
-  })
 }
 
 /**
@@ -375,37 +351,23 @@ const showTooltipIfReadyInternal = async (): Promise<void> => {
   const isReady = popoverState.value.visible &&
                   popoverState.value.targetElement &&
                   hasValidStep &&
-                  !isTransitioning.value
+                  !isTransitioning.value    
 
   if (isReady) {
     const stepTitle = popoverState.value.step?.popover?.title || currentStep.value?.popover?.title || 'Unknown'
-    console.log('🎯 All conditions met, showing tooltip for step:', stepTitle)
 
     // Use QTooltip's native delay handling - just set visibility
     if (!tooltipVisible.value) {
       await nextTick()
       tooltipVisible.value = true
-    } else {
-      console.log('✅ Tooltip already visible, skipping display logic')
     }
   } else {
-    console.log('⚠️ Conditions not met for showing tooltip:', {
-      popoverVisible: popoverState.value.visible,
-      hasTargetElement: !!popoverState.value.targetElement,
-      hasPopoverStep: !!popoverState.value.step,
-      hasCurrentStep: !!currentStep.value,
-      hasValidStep: hasValidStep,
-      isNotTransitioning: !isTransitioning.value
-    })
-
     // Simple retry for missing step data
     if (popoverState.value.visible && popoverState.value.targetElement && !isTransitioning.value && !hasValidStep) {
-      console.log('🔄 Step data not ready, waiting...')
       await nextTick()
 
       const retryHasValidStep = !!(popoverState.value.step || currentStep.value)
       if (retryHasValidStep && !tooltipVisible.value) {
-        console.log('✅ Step data now available, showing tooltip')
         tooltipVisible.value = true
       }
     }
@@ -447,11 +409,6 @@ watch(() => props.modelValue, (newValue) => {
 watch(() => currentStep.value, async (newStep, oldStep) => {
   // Only handle step changes if we're not already transitioning
   if (newStep && oldStep && newStep !== oldStep && tooltipVisible.value && !isTransitioning.value) {
-    console.log('🔄 Step change detected, syncing tooltip:', {
-      oldStep: oldStep?.popover?.title,
-      newStep: newStep?.popover?.title
-    })
-
     try {
       // 1. Immediately hide tooltip to prevent content flashing
       tooltipVisible.value = false
@@ -542,8 +499,6 @@ const stopTour = (): void => {
 const moveNext = async (): Promise<void> => {
   const currentIndex = currentStepIndex.value
   if (currentIndex !== undefined && currentIndex < totalSteps.value - 1) {
-    console.log('🚀 Moving to next step:', currentIndex + 1)
-
     try {
       // 1. Block scrolling immediately before any transition work
       blockScrolling()
@@ -568,7 +523,6 @@ const moveNext = async (): Promise<void> => {
 
       // 5. Perform step change
       const nextIndex = currentIndex + 1
-      console.log('🔄 Executing step change to:', nextIndex)
       drive(nextIndex)
       emit('step-change', props.steps[nextIndex], nextIndex)
 
@@ -603,8 +557,6 @@ const moveNext = async (): Promise<void> => {
 const movePrevious = async (): Promise<void> => {
   const currentIndex = currentStepIndex.value
   if (currentIndex !== undefined && currentIndex > 0) {
-    console.log('🔙 Moving to previous step:', currentIndex - 1)
-
     try {
       // 1. Block scrolling immediately before any transition work
       blockScrolling()
@@ -629,7 +581,6 @@ const movePrevious = async (): Promise<void> => {
 
       // 5. Perform step change
       const prevIndex = currentIndex - 1
-      console.log('🔄 Executing step change to:', prevIndex)
       drive(prevIndex)
       emit('step-change', props.steps[prevIndex], prevIndex)
 
@@ -660,8 +611,6 @@ const movePrevious = async (): Promise<void> => {
  */
 const moveTo = async (stepIndex: number): Promise<void> => {
   if (stepIndex >= 0 && stepIndex < totalSteps.value) {
-    console.log('🎯 Moving to step:', stepIndex)
-
     try {
       // 1. Block scrolling immediately before any transition work
       blockScrolling()
@@ -685,7 +634,6 @@ const moveTo = async (stepIndex: number): Promise<void> => {
       await ensureTooltipHidden()
 
       // 5. Perform step change
-      console.log('🔄 Executing step change to:', stepIndex)
       drive(stepIndex)
       emit('step-change', props.steps[stepIndex], stepIndex)
 
