@@ -209,7 +209,6 @@ export interface MintCoachMarkProps {
   config?: CoachMarkConfig
   modelValue?: boolean
   autoStart?: boolean
-  targetElement?: Readonly<Ref<MaybeElement<ReferenceElement>>>
 }
 
 // Vue component emits
