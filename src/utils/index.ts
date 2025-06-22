@@ -6,3 +6,4 @@
 export * from './animation'
 export * from './dom'
 export * from './geometry'
+export * from './styling'

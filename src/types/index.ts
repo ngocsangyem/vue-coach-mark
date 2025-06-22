@@ -31,6 +31,10 @@ export interface PopoverConfig {
   skipBtnText?: string
   popoverClass?: string
 
+  // Highlight appearance (step-level overrides)
+  padding?: number | string
+  radius?: number | string
+
   // Original navigation callbacks (maintain backward compatibility)
   onNextClick?: CoachMarkHook
   onPrevClick?: CoachMarkHook
@@ -85,8 +89,11 @@ export interface CoachMarkConfig {
   smoothScroll?: boolean
   allowClose?: boolean
   overlayClickBehavior?: 'close' | 'nextStep'
-  stagePadding?: number
-  stageRadius?: number
+
+  // Highlight appearance
+  padding?: number | string
+  radius?: number | string
+
   disableActiveInteraction?: boolean
   allowKeyboardControl?: boolean
   

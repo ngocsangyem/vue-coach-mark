@@ -107,10 +107,10 @@ export function useHighlight() {
       }
 
       if (getConfig('animate') && elapsed < duration) {
-        transitionStage(elapsed, duration, fromElement, toElement)
+        transitionStage(elapsed, duration, fromElement, toElement, fromStep, toStep)
       } else {
         // Animation complete
-        trackActiveElement(toElement)
+        trackActiveElement(toElement, toStep)
 
         if (highlightedHook && driver) {
           highlightedHook(isToDummyElement ? undefined : toElement, toStep, {
@@ -183,7 +183,7 @@ export function useHighlight() {
       return
     }
 
-    trackActiveElement(activeHighlight)
+    trackActiveElement(activeHighlight, activeStep)
     refreshOverlay()
 
     // Emit event for popover repositioning

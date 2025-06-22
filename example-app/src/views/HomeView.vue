@@ -329,6 +329,12 @@ function handleStepChange(step: CoachMarkStep, index: number) {
           <p>Different positioning options and automatic collision detection.</p>
         </router-link>
 
+        <router-link to="/padding-radius" class="demo-card">
+          <div class="demo-icon">🎨</div>
+          <h3>Padding & Radius</h3>
+          <p>Interactive demo of padding and radius options for element highlighting.</p>
+        </router-link>
+
         <router-link to="/programmatic" class="demo-card">
           <div class="demo-icon">⚙️</div>
           <h3>Programmatic</h3>

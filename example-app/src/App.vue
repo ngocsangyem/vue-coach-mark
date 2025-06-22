@@ -12,6 +12,7 @@ const navigationItems = [
   { name: 'Basic Tour', path: '/basic-tour', icon: '🎯' },
   { name: 'Custom Content', path: '/custom-content', icon: '🎨' },
   { name: 'Positioning', path: '/positioning', icon: '📍' },
+  { name: 'Padding & Radius', path: '/padding-radius', icon: '🎨' },
   { name: 'Programmatic', path: '/programmatic', icon: '⚙️' },
   { name: 'Theming', path: '/theming', icon: '🎭' },
   { name: 'Scenarios', path: '/scenarios', icon: '🌟' },

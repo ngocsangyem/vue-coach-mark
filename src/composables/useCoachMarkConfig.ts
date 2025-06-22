@@ -14,8 +14,8 @@ const defaultConfig: Required<Omit<CoachMarkConfig, 'steps' | 'onHighlightStarte
   smoothScroll: false,
   allowClose: true,
   overlayClickBehavior: 'close',
-  stagePadding: 10,
-  stageRadius: 5,
+  padding: 10,
+  radius: 5,
   disableActiveInteraction: false,
   allowKeyboardControl: true,
   popoverClass: '',
@@ -78,9 +78,14 @@ export function useCoachMarkConfig() {
     () => globalConfig.overlayClickBehavior ?? 'close'
   )
   
-  const stagePadding: ComputedRef<number> = computed(() => globalConfig.stagePadding ?? 10)
-  
-  const stageRadius: ComputedRef<number> = computed(() => globalConfig.stageRadius ?? 5)
+  // Padding and radius options
+  const padding: ComputedRef<number | string> = computed(() =>
+    globalConfig.padding ?? 10
+  )
+
+  const radius: ComputedRef<number | string> = computed(() =>
+    globalConfig.radius ?? 5
+  )
   
   const overlayColor: ComputedRef<string> = computed(() => globalConfig.overlayColor ?? '#000')
   
@@ -114,8 +119,8 @@ export function useCoachMarkConfig() {
     animate,
     allowClose,
     overlayClickBehavior,
-    stagePadding,
-    stageRadius,
+    padding,
+    radius,
     overlayColor,
     overlayOpacity,
     smoothScroll,

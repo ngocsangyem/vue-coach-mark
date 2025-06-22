@@ -65,6 +65,14 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Popover Persistence Test'
     }
+  },
+  {
+    path: '/padding-radius',
+    name: 'PaddingRadius',
+    component: () => import('../views/PaddingRadiusDemo.vue'),
+    meta: {
+      title: 'Padding & Radius Demo'
+    }
   }
 ]
 

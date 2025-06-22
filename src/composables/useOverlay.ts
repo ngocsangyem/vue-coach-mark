@@ -4,11 +4,11 @@
  */
 
 import { ref, computed } from 'vue'
-import { easeInOutQuad, lerpRect } from '../utils'
+import { easeInOutQuad, lerpRect, getEffectivePadding, getEffectiveRadius } from '../utils'
 import { useCoachMarkState } from './useCoachMarkState'
 import { useCoachMarkConfig } from './useCoachMarkConfig'
 import { useCoachMarkEvents } from './useCoachMarkEvents'
-import type { StageDefinition } from '../types'
+import type { StageDefinition, CoachMarkStep } from '../types'
 
 export function useOverlay() {
   const { getState, setState } = useCoachMarkState()
@@ -81,25 +81,29 @@ export function useOverlay() {
   /**
    * Generate SVG path for overlay with cutout
    */
-  function generateOverlayPath(stage: StageDefinition): string {
+  function generateOverlayPath(stage: StageDefinition, radius?: number): string {
     const { x, y, width, height } = stage
-    const radius = getConfig('stageRadius') || 5
+    const configRadius = getConfig('radius')
+    const effectiveRadius = radius ?? (typeof configRadius === 'number' ? configRadius : 5)
     const windowWidth = window.innerWidth
     const windowHeight = window.innerHeight
 
     // Create path that covers entire screen with a rounded rectangle cutout
     const outerPath = `M0,0 L${windowWidth},0 L${windowWidth},${windowHeight} L0,${windowHeight} Z`
-    
+
+    // Ensure radius doesn't exceed half of width or height
+    const maxRadius = Math.min(width / 2, height / 2, effectiveRadius)
+
     // Inner cutout path (rounded rectangle)
-    const innerPath = `M${x + radius},${y} ` +
-      `L${x + width - radius},${y} ` +
-      `Q${x + width},${y} ${x + width},${y + radius} ` +
-      `L${x + width},${y + height - radius} ` +
-      `Q${x + width},${y + height} ${x + width - radius},${y + height} ` +
-      `L${x + radius},${y + height} ` +
-      `Q${x},${y + height} ${x},${y + height - radius} ` +
-      `L${x},${y + radius} ` +
-      `Q${x},${y} ${x + radius},${y} Z`
+    const innerPath = `M${x + maxRadius},${y} ` +
+      `L${x + width - maxRadius},${y} ` +
+      `Q${x + width},${y} ${x + width},${y + maxRadius} ` +
+      `L${x + width},${y + height - maxRadius} ` +
+      `Q${x + width},${y + height} ${x + width - maxRadius},${y + height} ` +
+      `L${x + maxRadius},${y + height} ` +
+      `Q${x},${y + height} ${x},${y + height - maxRadius} ` +
+      `L${x},${y + maxRadius} ` +
+      `Q${x},${y} ${x + maxRadius},${y} Z`
 
     return `${outerPath} ${innerPath}`
   }
@@ -107,7 +111,7 @@ export function useOverlay() {
   /**
    * Update overlay with new stage position
    */
-  function updateOverlay(stage: StageDefinition): void {
+  function updateOverlay(stage: StageDefinition, radius?: number): void {
     let svg = getState('internalOverlaySvg')
 
     if (!svg) {
@@ -117,7 +121,7 @@ export function useOverlay() {
     const path = svg.querySelector('#mint-coach-mark-overlay-path') as SVGPathElement
     if (!path) return
 
-    const pathData = generateOverlayPath(stage)
+    const pathData = generateOverlayPath(stage, radius)
     path.setAttribute('d', pathData)
     path.setAttribute('fill-rule', 'evenodd')
 
@@ -128,18 +132,33 @@ export function useOverlay() {
   /**
    * Track active element and update overlay
    */
-  function trackActiveElement(element: Element): void {
-    const stagePadding = getConfig('stagePadding') || 10
+  function trackActiveElement(element: Element, step?: CoachMarkStep): void {
+    // Get effective padding and radius values
+    const globalPadding = getConfig('padding') || 10
+    const globalRadius = getConfig('radius') || 5
+
+    const effectivePadding = getEffectivePadding(
+      step?.popover?.padding,
+      globalPadding,
+      10
+    )
+
+    const effectiveRadius = getEffectiveRadius(
+      step?.popover?.radius,
+      globalRadius,
+      5
+    )
+
     const rect = element.getBoundingClientRect()
-    
+
     const stage: StageDefinition = {
-      x: rect.x - stagePadding,
-      y: rect.y - stagePadding,
-      width: rect.width + stagePadding * 2,
-      height: rect.height + stagePadding * 2
+      x: rect.x - effectivePadding,
+      y: rect.y - effectivePadding,
+      width: rect.width + effectivePadding * 2,
+      height: rect.height + effectivePadding * 2
     }
 
-    updateOverlay(stage)
+    updateOverlay(stage, effectiveRadius)
   }
 
   /**
@@ -149,33 +168,43 @@ export function useOverlay() {
     elapsed: number,
     duration: number,
     fromElement: Element,
-    toElement: Element
+    toElement: Element,
+    fromStep?: CoachMarkStep,
+    toStep?: CoachMarkStep
   ): void {
     const activeStagePosition = getState('currentActiveStagePosition')
-    const stagePadding = getConfig('stagePadding') || 10
 
-    const fromRect = activeStagePosition 
+    // Get effective padding for both steps
+    const globalPadding = getConfig('padding') || 10
+    const globalRadius = getConfig('radius') || 5
+
+    const fromPadding = getEffectivePadding(fromStep?.popover?.padding, globalPadding, 10)
+    const toPadding = getEffectivePadding(toStep?.popover?.padding, globalPadding, 10)
+
+    const fromRadius = getEffectiveRadius(fromStep?.popover?.radius, globalRadius, 5)
+    const toRadius = getEffectiveRadius(toStep?.popover?.radius, globalRadius, 5)
+
+    const fromRect = activeStagePosition
       ? new DOMRect(activeStagePosition.x, activeStagePosition.y, activeStagePosition.width, activeStagePosition.height)
       : fromElement.getBoundingClientRect()
     const toRect = toElement.getBoundingClientRect()
 
     // Calculate stage definitions
     const fromStage: StageDefinition = {
-      x: fromRect.x - stagePadding,
-      y: fromRect.y - stagePadding,
-      width: fromRect.width + stagePadding * 2,
-      height: fromRect.height + stagePadding * 2
+      x: fromRect.x - fromPadding,
+      y: fromRect.y - fromPadding,
+      width: fromRect.width + fromPadding * 2,
+      height: fromRect.height + fromPadding * 2
     }
 
     const toStage: StageDefinition = {
-      x: toRect.x - stagePadding,
-      y: toRect.y - stagePadding,
-      width: toRect.width + stagePadding * 2,
-      height: toRect.height + stagePadding * 2
+      x: toRect.x - toPadding,
+      y: toRect.y - toPadding,
+      width: toRect.width + toPadding * 2,
+      height: toRect.height + toPadding * 2
     }
 
     // Interpolate between stages
-    const progress = Math.min(elapsed / duration, 1)
     const currentStage: StageDefinition = {
       x: easeInOutQuad(elapsed, fromStage.x, toStage.x - fromStage.x, duration),
       y: easeInOutQuad(elapsed, fromStage.y, toStage.y - fromStage.y, duration),
@@ -183,7 +212,10 @@ export function useOverlay() {
       height: easeInOutQuad(elapsed, fromStage.height, toStage.height - fromStage.height, duration)
     }
 
-    updateOverlay(currentStage)
+    // Interpolate radius
+    const currentRadius = easeInOutQuad(elapsed, fromRadius, toRadius - fromRadius, duration)
+
+    updateOverlay(currentStage, currentRadius)
   }
 
   /**
@@ -191,8 +223,9 @@ export function useOverlay() {
    */
   function refreshOverlay(): void {
     const activeElement = getState('currentActiveElement')
+    const activeStep = getState('currentActiveStep')
     if (activeElement) {
-      trackActiveElement(activeElement)
+      trackActiveElement(activeElement, activeStep)
     }
   }
 
