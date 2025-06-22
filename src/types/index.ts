@@ -2,6 +2,8 @@
  * TypeScript type definitions for MintCoachMark
  */
 
+import type { Ref, MaybeRef, ComponentPublicInstance } from 'vue'
+
 // Basic types
 export type Side = 'top' | 'right' | 'bottom' | 'left' | 'over'
 export type Alignment = 'start' | 'center' | 'end'
@@ -197,12 +199,17 @@ export interface CoachMarkDriver {
   destroy: () => void
 }
 
+type ReferenceElement = Element;
+
+type MaybeElement<T> = T | ComponentPublicInstance | null | undefined;
+
 // Vue component props
 export interface MintCoachMarkProps {
   steps?: CoachMarkStep[]
   config?: CoachMarkConfig
   modelValue?: boolean
   autoStart?: boolean
+  targetElement?: Readonly<Ref<MaybeElement<ReferenceElement>>>
 }
 
 // Vue component emits
