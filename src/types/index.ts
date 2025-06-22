@@ -2,12 +2,22 @@
  * TypeScript type definitions for MintCoachMark
  */
 
-import type { Ref, MaybeRef, ComponentPublicInstance } from 'vue'
-
 // Basic types
 export type Side = 'top' | 'right' | 'bottom' | 'left' | 'over'
 export type Alignment = 'start' | 'center' | 'end'
 export type AllowedButtons = 'next' | 'previous' | 'close' | 'skip'
+
+// QTooltip positioning types
+export type QuasarAnchor = 'bottom middle' | 'top middle' | 'center right' | 'center left' | 'center middle' |
+                          'bottom left' | 'bottom right' | 'top left' | 'top right' | 'center start' | 'center end'
+
+// QTooltip configuration for step-level customization
+export interface QTooltipConfig {
+  anchor?: QuasarAnchor
+  self?: QuasarAnchor
+  offset?: [number, number]
+  class?: string
+}
 
 // Stage definition for overlay positioning
 export interface StageDefinition {
@@ -47,6 +57,9 @@ export interface PopoverConfig {
   onAsyncNextClick?: AsyncTourHook
   onAsyncPreviousClick?: AsyncTourHook
   onAsyncCloseClick?: AsyncTourHook
+
+  // QTooltip-specific configuration for QuasarCoachMark
+  tooltip?: QTooltipConfig
 }
 
 // Coach mark step definition
@@ -199,9 +212,7 @@ export interface CoachMarkDriver {
   destroy: () => void
 }
 
-type ReferenceElement = Element;
 
-type MaybeElement<T> = T | ComponentPublicInstance | null | undefined;
 
 // Vue component props
 export interface MintCoachMarkProps {

@@ -151,17 +151,27 @@ const positioningModes: PositioningMode[] = [
       {
         element: '#top-center',
         popover: {
-          title: 'Top Positioning',
-          description: 'This popover is positioned below the element (side: bottom)',
-          side: 'bottom'
+          title: 'Top Positioning with Custom Offset',
+          description: 'This popover uses a custom offset of [0, 20] plus effective padding for consistent spacing',
+          side: 'bottom',
+          padding: 15, // Step-level padding override
+          // Test new QTooltip step-level configuration with padding
+          tooltip: {
+            anchor: 'bottom middle',
+            self: 'top middle',
+            offset: [0, 20], // Will become [0, 35] (20 + 15 padding)
+            class: 'demo-custom-tooltip'
+          }
         }
       },
       {
         element: '#right-center',
         popover: {
-          title: 'Right Positioning',
-          description: 'This popover is positioned to the left of the element (side: left)',
-          side: 'left'
+          title: 'Right Positioning with Calculated Offset',
+          description: 'This popover uses calculated offset (no custom offset specified) with the same padding for comparison',
+          side: 'left',
+          padding: 15, // Same padding as previous step for comparison
+          // No tooltip.offset specified - will use calculated offset with padding
         }
       },
       {
@@ -296,8 +306,8 @@ const config: CoachMarkConfig = {
   animate: true,
   allowClose: true,
   showProgress: true,
-  stagePadding: 10,
-  stageRadius: 8,
+  padding: 10,
+  radius: 8,
   overlayOpacity: 0.7,
   smoothScroll: true,
   popoverOffset: 15
@@ -601,5 +611,16 @@ function onStepChange(step: CoachMarkStep, index: number) {
     padding: 1rem;
     font-size: 1rem;
   }
+}
+
+/* Custom tooltip styling for testing step-level configuration */
+:deep(.demo-custom-tooltip) {
+  border: 2px solid #667eea !important;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3) !important;
+}
+
+:deep(.demo-custom-tooltip .mint-coach-mark-quasar-content) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
 }
 </style>

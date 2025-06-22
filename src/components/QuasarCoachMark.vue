@@ -13,7 +13,7 @@
       :hide-delay="50"
       no-parent-event
       class="mint-coach-mark-quasar-tooltip"
-      :class="currentStep?.popover?.popoverClass"
+      :class="quasarClass"
       @show="handleTooltipShow"
       @hide="handleTooltipHide"
     >
@@ -115,14 +115,14 @@ import { useAsyncTour } from '../composables/useAsyncTour'
 import { useScrollBlocking } from '../composables/useScrollBlocking'
 import { useTooltipManagement } from '../composables/useTooltipManagement'
 import { useQuasarWatchers } from '../composables/useQuasarWatchers'
-import { getElement, getEffectivePadding } from '../utils'
+import { getEffectivePadding } from '../utils'
 import type {
   CoachMarkConfig,
   CoachMarkStep,
   MintCoachMarkProps,
   MintCoachMarkEmits,
   CoachMarkDriver,
-  Side
+  QuasarAnchor
 } from '../types'
 
 // Define props with same interface as MintCoachMark
@@ -189,32 +189,29 @@ const isLastStep: ComputedRef<boolean> = computed(() =>
   currentStepIndex.value === totalSteps.value - 1
 )
 
-// Quasar positioning mapping with proper types
-type QuasarAnchor = 'bottom middle' | 'top middle' | 'center right' | 'center left' | 'center middle'
-
-const quasarPositionMap: Record<Side, { anchor: QuasarAnchor; self: QuasarAnchor }> = {
-  top: { anchor: 'bottom middle', self: 'top middle' },
-  bottom: { anchor: 'top middle', self: 'bottom middle' },
-  left: { anchor: 'center right', self: 'center left' },
-  right: { anchor: 'center left', self: 'center right' },
-  over: { anchor: 'center middle', self: 'center middle' }
-}
+// QTooltip positioning configuration with step-level support
+const DEFAULT_ANCHOR: QuasarAnchor = 'bottom middle'
+const DEFAULT_SELF: QuasarAnchor = 'top middle'
+const DEFAULT_OFFSET: [number, number] = [0, 10]
+const DEFAULT_CLASS = ''
 
 const quasarAnchor: ComputedRef<QuasarAnchor> = computed(() => {
-  const side = currentStep.value?.popover?.side || 'bottom'
-  return quasarPositionMap[side]?.anchor || quasarPositionMap.bottom.anchor
+  return currentStep.value?.popover?.tooltip?.anchor || DEFAULT_ANCHOR
 })
 
 const quasarSelf: ComputedRef<QuasarAnchor> = computed(() => {
-  const side = currentStep.value?.popover?.side || 'bottom'
-  return quasarPositionMap[side]?.self || quasarPositionMap.bottom.self
+  return currentStep.value?.popover?.tooltip?.self || DEFAULT_SELF
 })
 
-// Quasar offset calculation including padding
-const quasarOffset: ComputedRef<[number, number]> = computed(() => {
-  const baseOffset = 10
+const quasarClass: ComputedRef<string> = computed(() => {
+  const stepClass = currentStep.value?.popover?.tooltip?.class || DEFAULT_CLASS
+  const popoverClass = currentStep.value?.popover?.popoverClass || ''
+  return [stepClass, popoverClass].filter(Boolean).join(' ')
+})
 
-  // Get effective padding value
+// Quasar offset calculation with step-level configuration support
+const quasarOffset: ComputedRef<[number, number]> = computed(() => {
+  // Get effective padding value (used for both step-specific and calculated offsets)
   const config = getConfig()
   const globalPadding = config.padding || 10
   const effectivePadding = getEffectivePadding(
@@ -223,10 +220,20 @@ const quasarOffset: ComputedRef<[number, number]> = computed(() => {
     10
   )
 
+  // Check for step-specific offset first
+  const stepOffset = currentStep.value?.popover?.tooltip?.offset
+  if (stepOffset) {
+    // Add effective padding to step-specific offset for consistent spacing
+    return [stepOffset[0], stepOffset[1] + effectivePadding]
+  }
+
+  // Fall back to calculated offset based on padding
+  const baseOffset = DEFAULT_OFFSET[1] // Use default offset as base
+
   // Add padding to the base offset for proper spacing
   const totalOffset = baseOffset + effectivePadding
 
-  return [totalOffset, totalOffset]
+  return [0, totalOffset]
 })
 
 // Button configuration
@@ -340,8 +347,6 @@ const showTooltipIfReadyInternal = async (): Promise<void> => {
                   !isTransitioning.value    
 
   if (isReady) {
-    const stepTitle = popoverState.value.step?.popover?.title || currentStep.value?.popover?.title || 'Unknown'
-
     // Use QTooltip's native delay handling - just set visibility
     if (!tooltipVisible.value) {
       await nextTick()
